@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using System.Linq;//引用 系統.查詢語言Lin Query
-
+using System.Threading;
 
 /// <summary>
 /// 追蹤人類
@@ -43,29 +43,45 @@ public class PeopleTrack : People
             //儲存所有人與此物件的距離
             if (people[i] == null|| people[i].transform.name == "殭屍" || people[i].transform.name == "警察")
             {
-                distance[i] = 999;  //與殭屍物件距離改為999
-                continue;           //繼續 - 跳過並執行下一次迴圈
+                if (people[i] == null) distance[i] = 1000;  //如果人類死亡 距離 改為 1000           
+                distance[i] = 999;                          //與殭屍物件距離改為999
+                continue;                                   //繼續 - 跳過並執行下一次迴圈
             }
 
             ///儲存所有人跟此物件的距離
             distance[i] = Vector3.Distance(transform.position, people[i].transform.position);
         }
         ///判斷最近
-        float min = distance.Min();                   //  最小值 = 距離.最小值
-        int index = distance.ToList().IndexOf(min); //索引值 = 距離.轉清單.取得索引值(最小值)
-        target = people[index].transform;           //目標 = 人類[索引值].變形  
+        float min = distance.Min();                     //  最小值 = 距離.最小值
+        int index = distance.ToList().IndexOf(min);     //索引值 = 距離.轉清單.取得索引值(最小值)
+        target = people[index].transform;               //目標 = 人類[索引值].變形  
         ///追蹤最近目標
         agent.SetDestination(target.position);
-        if (agent.remainingDistance <= 1F) HitPeople();//判斷 距離<1 傷害人類
+        if (agent.remainingDistance <= 1F&& min!=999) HitPeople();//判斷 距離<1 傷害人類 並且距離不是999的人類
         
     }
+
+    private float timerHit;
 
     /// <summary>
     /// 傷害人類
     /// </summary>
     private void HitPeople()
     {
-        target.GetComponent<People>().Dead();
+        if (timerHit>=1F)                              //如果 時間>=1秒
+        {
+            timerHit = 0;                              //計時器 歸零
+            agent.isStopped = true;                 //代理器 停止
+            ani.SetTrigger("攻擊");                 //攻擊
+            target.GetComponent<People>().Dead();   //人類 死亡
+        }
+
+        else
+        {
+            agent.isStopped = false;                //否則 - 代理器 開始
+            timerHit += Time.deltaTime;                //計時器 累加
+        }
+
     }
 
 

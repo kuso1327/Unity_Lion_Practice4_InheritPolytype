@@ -33,8 +33,7 @@ public class PeopleRun : People
             //導覽網格.樣本座標(座標,碰撞點,半徑,圖層)
             //out執行方法會將結果直接儲存到傳入的參數內
             //執行後將取得的隨機點儲存在hit參數內
-            NavMesh.SamplePosition(pointRan, out hit, 5, 1);
-                        //代理器.設定目的地(座標 - 三維向量)
+            NavMesh.SamplePosition(pointRan, out hit, 5, 1);   //代理器.設定目的地(座標 - 三維向量)
             final = hit.position;
         }
 
